@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat API Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Chat API Documentation</h1>
+            <p class="text-gray-600">Real-time chat API built with FastAPI and WebSocket support</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="md:col-span-1">
+                <nav class="bg-white rounded-lg shadow-lg p-4 sticky top-4">
+                    <h2 class="text-xl font-semibold mb-4">Contents</h2>
+                    <ul class="space-y-2">
+                        <li><a href="#overview" class="text-blue-600 hover:text-blue-800">Overview</a></li>
+                        <li><a href="#websocket" class="text-blue-600 hover:text-blue-800">WebSocket Endpoints</a></li>
+                        <li><a href="#http" class="text-blue-600 hover:text-blue-800">HTTP Endpoints</a></li>
+                        <li><a href="#message-types" class="text-blue-600 hover:text-blue-800">Message Types</a></li>
+                        <li><a href="#errors" class="text-blue-600 hover:text-blue-800">Error Responses</a></li>
+                        <li><a href="#rate-limiting" class="text-blue-600 hover:text-blue-800">Rate Limiting</a></li>
+                        <li><a href="#security" class="text-blue-600 hover:text-blue-800">Security</a></li>
+                        <li><a href="#dependencies" class="text-blue-600 hover:text-blue-800">Dependencies</a></li>
+                        <li><a href="#configuration" class="text-blue-600 hover:text-blue-800">Configuration</a></li>
+                        <li><a href="#examples" class="text-blue-600 hover:text-blue-800">Example Usage</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <section id="overview" class="mb-8">
+                        <h2 class="text-2xl font-bold mb-4">Overview</h2>
+                        <p class="text-gray-700 mb-4">
+                            This is a real-time chat API built with FastAPI and WebSocket support. The API allows users to connect to chat rooms, send messages, and receive real-time updates.
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="font-mono">Base URL: <code class="text-blue-600">http://localhost:8000</code></p>
+                        </div>
+                    </section>
+
+                    <section id="websocket" class="mb-8">
+                        <h2 class="text-2xl font-bold mb-4">WebSocket Endpoints</h2>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                            <h3 class="text-xl font-semibold mb-2">Connect to Chat Room</h3>
+                            <pre><code class="language-bash">ws://localhost:8000/ws/{user_id}</code></pre>
+                            <p class="mt-2">Connects a user to the chat system. The user will receive real-time updates for messages and system events.</p>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Parameters</h4>
+                            <ul class="list-disc list-inside">
+                                <li><code>user_id</code> (path): Unique identifier for the user</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section id="http" class="mb-8">
+                        <h2 class="text-2xl font-bold mb-4">HTTP Endpoints</h2>
+                        <div class="space-y-6">
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">Get Chat History</h3>
+                                <pre><code class="language-bash">GET /chat/{chat_id}/messages</code></pre>
+                                <p class="mt-2">Retrieves the message history for a specific chat room.</p>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">Get Chat Room Details</h3>
+                                <pre><code class="language-bash">GET /chat/{chat_id}</code></pre>
+                                <p class="mt-2">Retrieves details about a specific chat room.</p>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">Get User Details</h3>
+                                <pre><code class="language-bash">GET /user/{user_id}</code></pre>
+                                <p class="mt-2">Retrieves details about a specific user.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="message-types" class="mb-8">
+                        <h2 class="text-2xl font-bold mb-4">Message Types</h2>
+                        <div class="space-y-4">
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">Text Message</h3>
+                                <pre><code class="language-json">{
+  "type": "text",
+  "content": "Hello, world!",
+  "chat_id": "uuid",
+  "user_id": "uuid"
+}</code></pre>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">System Message</h3>
+                                <pre><code class="language-json">{
+  "type": "system",
+  "content": "User joined the chat",
+  "chat_id": "uuid",
+  "user_id": "system"
+}</code></pre>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">Typing Status</h3>
+                                <pre><code class="language-json">{
+  "type": "typing",
+  "content": "typing",
+  "chat_id": "uuid",
+  "user_id": "uuid"
+}</code></pre>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="examples" class="mb-8">
+                        <h2 class="text-2xl font-bold mb-4">Example Usage</h2>
+                        <div class="space-y-6">
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">Python Client</h3>
+                                <pre><code class="language-python">import asyncio
+import websockets
+import json
+
+async def chat_client():
+    uri = "ws://localhost:8000/ws/user1"
+    async with websockets.connect(uri) as websocket:
+        # Send a text message
+        message = {
+            "type": "text",
+            "content": "Hello, world!",
+            "chat_id": "chat1",
+            "user_id": "user1"
+        }
+        await websocket.send(json.dumps(message))
+        
+        # Receive messages
+        while True:
+            response = await websocket.recv()
+            print(f"Received: {response}")
+
+asyncio.get_event_loop().run_until_complete(chat_client())</code></pre>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-2">JavaScript Client</h3>
+                                <pre><code class="language-javascript">const ws = new WebSocket('ws://localhost:8000/ws/user1');
+
+ws.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    console.log('Received:', message);
+};
+
+ws.onopen = () => {
+    // Send a text message
+    const message = {
+        type: 'text',
+        content: 'Hello, world!',
+        chat_id: 'chat1',
+        user_id: 'user1'
+    };
+    ws.send(JSON.stringify(message));
+};</code></pre>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
