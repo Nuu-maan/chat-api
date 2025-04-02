@@ -16,7 +16,6 @@ A real-time chat API built with FastAPI, WebSockets, and Redis.
 - Rate limiting and security features
 - Asynchronous operations
 - Redis for data storage
-- Dark mode documentation UI
 - Comprehensive test suite
 
 ## Project Structure
@@ -93,7 +92,7 @@ The API will be available at `http://localhost:8000`
 
 ## API Documentation
 
-Visit the beautiful dark-themed documentation at:
+Visit the beautiful documentation at:
 - `/` - Main documentation with Swagger UI
 - `/redoc` - Alternative documentation with ReDoc
 
