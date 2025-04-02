@@ -6,10 +6,16 @@ from typing import List, Optional
 import json
 from datetime import datetime
 import uuid
-from models import Message, ChatRoom, User, ChatResponse, TypingStatus, MessageType
-from services.websocket import manager
-from services.database import db
-from config.settings import settings
+from src.models import Message, ChatRoom, User, ChatResponse, TypingStatus, MessageType
+from src.services.websocket import manager
+from src.services.database import db
+from src.config.settings import settings
+from src.api.v1.router import api_router
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -28,8 +34,11 @@ app.add_middleware(
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: str):
+# Include API router
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
+@app.websocket("/ws/{room_id}/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, room_id: str, user_id: str):
     await manager.connect(websocket, user_id)
     try:
         while True:
@@ -40,42 +49,34 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             message_type = message_data.get("type", "message")
             
             if message_type == "join":
-                chat_id = message_data.get("chat_id")
-                if chat_id:
-                    await manager.join_chat(user_id, chat_id)
+                await manager.join_chat(user_id, room_id)
             
             elif message_type == "leave":
-                chat_id = message_data.get("chat_id")
-                if chat_id:
-                    await manager.leave_chat(user_id, chat_id)
+                await manager.leave_chat(user_id, room_id)
             
             elif message_type == "typing":
-                chat_id = message_data.get("chat_id")
                 is_typing = message_data.get("is_typing", False)
-                if chat_id:
-                    await manager.handle_typing(user_id, chat_id, is_typing)
+                await manager.handle_typing(user_id, room_id, is_typing)
             
             else:  # Regular message
-                chat_id = message_data.get("chat_id")
                 content = message_data.get("content", "")
-                reply_to = message_data.get("reply_to")
+                metadata = message_data.get("metadata", {})
                 
-                if chat_id and content:
+                if content:
                     message = Message(
                         id=str(uuid.uuid4()),
-                        chat_id=chat_id,
+                        room_id=room_id,
                         user_id=user_id,
                         content=content,
-                        type=MessageType.TEXT,
                         timestamp=datetime.utcnow(),
-                        reply_to=reply_to
+                        metadata=metadata
                     )
                     
                     # Save message to database
                     await db.save_message(message)
                     
                     # Broadcast to chat room
-                    await manager.broadcast_to_chat(chat_id, message)
+                    await manager.broadcast_to_chat(room_id, message)
             
     except WebSocketDisconnect:
         await manager.disconnect(user_id)
@@ -112,19 +113,31 @@ async def get_user(user_id: str) -> User:
 
 @app.get("/", response_class=HTMLResponse)
 async def get_docs():
-    """Serve the API documentation page"""
+    """Serve the API documentation"""
     with open("static/docs.html", "r", encoding="utf-8") as f:
         return f.read()
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize services on startup"""
-    await db.connect()
+    try:
+        logger.info("Connecting to Redis...")
+        await db.connect()
+        logger.info("Successfully connected to Redis")
+    except Exception as e:
+        logger.error(f"Failed to connect to Redis: {e}")
+        raise
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
-    await db.close()
+    try:
+        logger.info("Disconnecting from Redis...")
+        await db.disconnect()
+        logger.info("Successfully disconnected from Redis")
+    except Exception as e:
+        logger.error(f"Failed to disconnect from Redis: {e}")
+        raise
 
 if __name__ == "__main__":
     import uvicorn
