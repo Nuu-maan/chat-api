@@ -2,7 +2,7 @@
 
 A real-time chat API built with FastAPI, WebSockets, and Redis.
 
-[![GitHub](https://img.shields.io/github/license/Nuu-maan/chat-api)](https://github.com/Nuu-maan/chat-api/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Nuu-maan/chat-api/blob/main/LICENSE)
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95.0+-green.svg)](https://fastapi.tiangolo.com)
 [![Redis](https://img.shields.io/badge/redis-7.0+-red.svg)](https://redis.io)
