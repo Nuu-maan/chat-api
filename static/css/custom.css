@@ -1,0 +1,176 @@
+/* Dark mode theme for FastAPI docs */
+:root {
+    --primary-color: #00b4d8;
+    --secondary-color: #0077b6;
+    --background-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --border-color: #333;
+    --code-background: #2d2d2d;
+    --hover-color: #2a2a2a;
+}
+
+/* Main background and text */
+body {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color) !important;
+}
+
+/* Links */
+a {
+    color: var(--primary-color) !important;
+}
+
+a:hover {
+    color: var(--secondary-color) !important;
+}
+
+/* Code blocks */
+pre, code {
+    background-color: var(--code-background) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Tables */
+table {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+th {
+    background-color: var(--hover-color) !important;
+    color: var(--primary-color) !important;
+}
+
+td {
+    border-color: var(--border-color) !important;
+}
+
+/* Input fields */
+input, textarea, select {
+    background-color: var(--code-background) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Buttons */
+button {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+}
+
+button:hover {
+    background-color: var(--secondary-color) !important;
+}
+
+/* Swagger UI specific */
+.swagger-ui {
+    background-color: var(--background-color) !important;
+}
+
+.swagger-ui .opblock {
+    background-color: var(--hover-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.swagger-ui .opblock .opblock-summary-method {
+    background-color: var(--primary-color) !important;
+}
+
+.swagger-ui .opblock .opblock-summary-path {
+    color: var(--text-color) !important;
+}
+
+.swagger-ui .opblock .opblock-summary-description {
+    color: var(--text-color) !important;
+}
+
+.swagger-ui .opblock .opblock-section-header {
+    background-color: var(--hover-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.swagger-ui .opblock .opblock-section-header h4 {
+    color: var(--primary-color) !important;
+}
+
+.swagger-ui .opblock .opblock-section-header label {
+    color: var(--text-color) !important;
+}
+
+.swagger-ui .opblock .opblock-section-header select {
+    background-color: var(--code-background) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.swagger-ui .opblock .opblock-section-header input {
+    background-color: var(--code-background) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.swagger-ui .opblock .opblock-section-header button {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.swagger-ui .opblock .opblock-section-header button:hover {
+    background-color: var(--secondary-color) !important;
+}
+
+/* ReDoc specific */
+.redoc-wrap {
+    background-color: var(--background-color) !important;
+}
+
+.redoc-wrap .menu-content {
+    background-color: var(--hover-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.redoc-wrap .menu-content li {
+    color: var(--text-color) !important;
+}
+
+.redoc-wrap .menu-content li.active {
+    color: var(--primary-color) !important;
+}
+
+.redoc-wrap .menu-content li:hover {
+    background-color: var(--hover-color) !important;
+}
+
+.redoc-wrap .api-content {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+}
+
+.redoc-wrap .api-content pre {
+    background-color: var(--code-background) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.redoc-wrap .api-content table {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+.redoc-wrap .api-content th {
+    background-color: var(--hover-color) !important;
+    color: var(--primary-color) !important;
+}
+
+.redoc-wrap .api-content td {
+    border-color: var(--border-color) !important;
+} 

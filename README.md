@@ -2,15 +2,21 @@
 
 A real-time chat API built with FastAPI, WebSockets, and Redis.
 
+[![GitHub](https://img.shields.io/github/license/Nuu-maan/chat-api)](https://github.com/Nuu-maan/chat-api/blob/main/LICENSE)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.95.0+-green.svg)](https://fastapi.tiangolo.com)
+[![Redis](https://img.shields.io/badge/redis-7.0+-red.svg)](https://redis.io)
+
 ## Features
 
 - Real-time messaging using WebSockets
 - Chat rooms with multiple users
-- Message history
-- User management
-- Rate limiting
+- Message history and persistence
+- User management and authentication
+- Rate limiting and security features
 - Asynchronous operations
-- Redis for data persistence
+- Redis for data storage
+- Dark mode documentation UI
 - Comprehensive test suite
 
 ## Project Structure
@@ -22,12 +28,11 @@ chat-api/
 │   │   └── v1/           # API v1 routes
 │   ├── config/           # Configuration settings
 │   ├── core/             # Core business logic
-│   ├── examples/         # Example usage
 │   ├── middleware/       # Middleware components
 │   ├── models/          # Data models
 │   └── services/        # Services (Database, WebSocket)
 ├── tests/               # Test suite
-├── static/             # Static files
+├── static/             # Static files and documentation assets
 ├── .env               # Environment variables
 ├── example.env        # Example environment variables
 ├── requirements.txt   # Python dependencies
@@ -42,11 +47,11 @@ chat-api/
 - Redis server
 - Virtual environment (recommended)
 
-## Installation
+## Quick Start
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/chat-api.git
+git clone https://github.com/Nuu-maan/chat-api.git
 cd chat-api
 ```
 
@@ -88,11 +93,11 @@ The API will be available at `http://localhost:8000`
 
 ## API Documentation
 
-Once the server is running, visit:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+Visit the beautiful dark-themed documentation at:
+- `/` - Main documentation with Swagger UI
+- `/redoc` - Alternative documentation with ReDoc
 
-## WebSocket Endpoints
+## WebSocket Usage
 
 ### Connect to Chat Room
 ```
@@ -104,7 +109,8 @@ ws://localhost:8000/api/v1/ws/{room_id}/{user_id}
 {
     "type": "text",
     "content": "Hello, World!",
-    "user_id": "user123"
+    "user_id": "user123",
+    "room_id": "room456"
 }
 ```
 
@@ -133,12 +139,42 @@ pytest tests/ -v
 
 ## Contributing
 
+Contributions are greatly appreciated! Here's how you can help:
+
 1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+2. Create your feature branch:
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. Make your changes and commit them:
+   ```bash
+   git commit -m 'Add some amazing feature'
+   ```
+4. Push to the branch:
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+5. Open a Pull Request
+
+### Areas for Contribution
+* Additional features and endpoints
+* Performance improvements
+* Documentation enhancements
+* Bug fixes
+* Test coverage improvements
+* Security enhancements
+
+### Development Guidelines
+* Follow PEP 8 style guide
+* Write tests for new features
+* Update documentation for changes
+* Keep commits atomic and well-described
+* Add type hints to new code
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/Nuu-maan/chat-api/blob/main/LICENSE) file for details.
+
+## Repository
+
+Visit the project repository at [https://github.com/Nuu-maan/chat-api](https://github.com/Nuu-maan/chat-api) 
