@@ -1,204 +1,270 @@
 # Chat API Documentation
 
 ## Overview
-This is a real-time chat API built with FastAPI and WebSocket support. The API allows users to connect to chat rooms, send messages, and receive real-time updates.
 
-## Base URL
-```
-http://localhost:8000
-```
+The Chat API provides real-time messaging capabilities using WebSockets and REST endpoints. It supports multiple chat rooms, user management, and message persistence using Redis.
 
-## WebSocket Endpoints
+## Authentication
+
+Currently, the API uses simple user IDs for authentication. In a production environment, you should implement proper authentication using JWT or similar.
+
+## WebSocket API
 
 ### Connect to Chat Room
-```websocket
-ws://localhost:8000/ws/{user_id}
-```
 
-Connects a user to the chat system. The user will receive real-time updates for messages and system events.
+```
+ws://localhost:8000/api/v1/ws/{room_id}/{user_id}
+```
 
 #### Parameters
-- `user_id` (path): Unique identifier for the user
+- `room_id`: The ID of the chat room to connect to
+- `user_id`: The ID of the user connecting
 
-#### Example
-```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/user1');
+#### Message Types
+
+1. Text Message
+```json
+{
+    "type": "text",
+    "content": "Hello, World!",
+    "user_id": "user123"
+}
 ```
 
-## HTTP Endpoints
+2. History Message (Server -> Client)
+```json
+{
+    "type": "history",
+    "messages": [
+        {
+            "id": "message123",
+            "room_id": "room123",
+            "user_id": "user123",
+            "content": "Hello!",
+            "type": "text",
+            "created_at": "2024-04-01T12:00:00Z"
+        }
+    ]
+}
+```
 
-### Get Chat History
+3. System Message (Server -> Client)
+```json
+{
+    "type": "system",
+    "content": "User user123 left the chat",
+    "timestamp": "2024-04-01T12:00:00Z"
+}
+```
+
+## REST API
+
+### Rooms
+
+#### Create Room
 ```http
-GET /chat/{chat_id}/messages
+POST /api/v1/rooms
+Content-Type: application/json
+
+{
+    "name": "General Chat"
+}
 ```
 
-Retrieves the message history for a specific chat room.
+Response:
+```json
+{
+    "id": "room123",
+    "name": "General Chat",
+    "created_at": "2024-04-01T12:00:00Z"
+}
+```
 
-#### Parameters
-- `chat_id` (path): Unique identifier for the chat room
-- `limit` (query, optional): Maximum number of messages to return (default: 50)
-- `before` (query, optional): Timestamp to get messages before (ISO format)
+#### List Rooms
+```http
+GET /api/v1/rooms
+```
 
-#### Response
+Response:
 ```json
 [
-  {
-    "id": "uuid",
-    "chat_id": "uuid",
-    "user_id": "uuid",
-    "content": "Message content",
-    "type": "text",
-    "timestamp": "2024-01-01T00:00:00",
-    "metadata": {},
-    "reply_to": null
-  }
+    {
+        "id": "room123",
+        "name": "General Chat",
+        "created_at": "2024-04-01T12:00:00Z"
+    }
 ]
 ```
 
-### Get Chat Room Details
+#### Get Room
 ```http
-GET /chat/{chat_id}
+GET /api/v1/rooms/{room_id}
 ```
 
-Retrieves details about a specific chat room.
-
-#### Parameters
-- `chat_id` (path): Unique identifier for the chat room
-
-#### Response
+Response:
 ```json
 {
-  "id": "uuid",
-  "name": "Chat Room Name",
-  "created_at": "2024-01-01T00:00:00",
-  "participants": ["user1", "user2"],
-  "is_private": false,
-  "metadata": {}
+    "id": "room123",
+    "name": "General Chat",
+    "created_at": "2024-04-01T12:00:00Z"
 }
 ```
 
-### Get User Details
+### Users
+
+#### Create User
 ```http
-GET /user/{user_id}
-```
+POST /api/v1/users
+Content-Type: application/json
 
-Retrieves details about a specific user.
-
-#### Parameters
-- `user_id` (path): Unique identifier for the user
-
-#### Response
-```json
 {
-  "id": "uuid",
-  "username": "username",
-  "email": "user@example.com",
-  "is_active": true,
-  "last_seen": "2024-01-01T00:00:00",
-  "metadata": {}
+    "username": "john_doe"
 }
 ```
 
-## Message Types
-
-### Text Message
+Response:
 ```json
 {
-  "type": "text",
-  "content": "Hello, world!",
-  "chat_id": "uuid",
-  "user_id": "uuid"
+    "id": "user123",
+    "username": "john_doe",
+    "created_at": "2024-04-01T12:00:00Z"
 }
 ```
 
-### System Message
+#### List Users
+```http
+GET /api/v1/users
+```
+
+Response:
+```json
+[
+    {
+        "id": "user123",
+        "username": "john_doe",
+        "created_at": "2024-04-01T12:00:00Z"
+    }
+]
+```
+
+#### Get User
+```http
+GET /api/v1/users/{user_id}
+```
+
+Response:
 ```json
 {
-  "type": "system",
-  "content": "User joined the chat",
-  "chat_id": "uuid",
-  "user_id": "system"
+    "id": "user123",
+    "username": "john_doe",
+    "created_at": "2024-04-01T12:00:00Z"
 }
 ```
 
-### Typing Status
-```json
+### Messages
+
+#### Send Message
+```http
+POST /api/v1/rooms/{room_id}/messages
+Content-Type: application/json
+
 {
-  "type": "typing",
-  "content": "typing",
-  "chat_id": "uuid",
-  "user_id": "uuid"
+    "content": "Hello, World!",
+    "user_id": "user123",
+    "type": "text"
 }
 ```
 
-## Error Responses
-
-### 404 Not Found
+Response:
 ```json
 {
-  "detail": "Resource not found"
+    "id": "message123",
+    "room_id": "room123",
+    "user_id": "user123",
+    "content": "Hello, World!",
+    "type": "text",
+    "created_at": "2024-04-01T12:00:00Z"
 }
 ```
 
-### 400 Bad Request
-```json
-{
-  "detail": "Invalid request data"
-}
+#### Get Room Messages
+```http
+GET /api/v1/rooms/{room_id}/messages?limit=50
 ```
 
-### 500 Internal Server Error
+Response:
+```json
+[
+    {
+        "id": "message123",
+        "room_id": "room123",
+        "user_id": "user123",
+        "content": "Hello, World!",
+        "type": "text",
+        "created_at": "2024-04-01T12:00:00Z"
+    }
+]
+```
+
+## Error Handling
+
+The API uses standard HTTP status codes:
+
+- 200: Success
+- 400: Bad Request
+- 401: Unauthorized
+- 404: Not Found
+- 429: Too Many Requests
+- 500: Internal Server Error
+
+Error Response Format:
 ```json
 {
-  "detail": "Internal server error"
+    "detail": "Error message here"
 }
 ```
 
 ## Rate Limiting
-- Maximum messages per chat room: 1000 (configurable in settings)
-- WebSocket connection timeout: 5 seconds
-- Redis connection timeout: 5 seconds
 
-## Security
-- CORS is enabled for all origins
-- WebSocket connections are authenticated via user_id
-- Redis connection uses password authentication
+The API implements rate limiting per client IP address. The default limit is configurable in the `.env` file.
 
-## Dependencies
-- FastAPI
-- Redis
-- WebSockets
-- Pydantic
-- Python 3.8+
+## WebSocket Events
 
-## Configuration
-The application can be configured through environment variables or a `.env` file:
+1. Connection
+   - Client connects to WebSocket
+   - Server sends chat history
+   - Server notifies other users of new connection
 
-```env
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_DB=0
-REDIS_PASSWORD=your_password
-MAX_MESSAGES_PER_ROOM=1000
-```
+2. Message
+   - Client sends message
+   - Server broadcasts message to all users in room
+   - Server persists message in Redis
 
-## Example Usage
+3. Disconnection
+   - Client disconnects
+   - Server notifies other users
+   - Server cleans up connection
 
-### Python Client
+## Examples
+
+### Python Client Example
 ```python
 import asyncio
 import websockets
 import json
 
 async def chat_client():
-    uri = "ws://localhost:8000/ws/user1"
+    uri = "ws://localhost:8000/api/v1/ws/room123/user123"
     async with websockets.connect(uri) as websocket:
-        # Send a text message
+        # Receive history
+        history = await websocket.recv()
+        print(f"History: {history}")
+        
+        # Send message
         message = {
             "type": "text",
-            "content": "Hello, world!",
-            "chat_id": "chat1",
-            "user_id": "user1"
+            "content": "Hello!",
+            "user_id": "user123"
         }
         await websocket.send(json.dumps(message))
         
@@ -207,26 +273,23 @@ async def chat_client():
             response = await websocket.recv()
             print(f"Received: {response}")
 
-asyncio.get_event_loop().run_until_complete(chat_client())
+asyncio.run(chat_client())
 ```
 
-### JavaScript Client
+### JavaScript Client Example
 ```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/user1');
+const ws = new WebSocket('ws://localhost:8000/api/v1/ws/room123/user123');
 
 ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    console.log('Received:', message);
+    const data = JSON.parse(event.data);
+    console.log('Received:', data);
 };
 
 ws.onopen = () => {
-    // Send a text message
-    const message = {
+    ws.send(JSON.stringify({
         type: 'text',
-        content: 'Hello, world!',
-        chat_id: 'chat1',
-        user_id: 'user1'
-    };
-    ws.send(JSON.stringify(message));
+        content: 'Hello!',
+        user_id: 'user123'
+    }));
 };
 ``` 

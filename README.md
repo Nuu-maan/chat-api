@@ -1,37 +1,52 @@
-# Real-time Chat API
+# Chat API
 
-A modern, scalable real-time chat API built with FastAPI, WebSocket, and Redis.
+A real-time chat API built with FastAPI, WebSockets, and Redis.
 
 ## Features
 
-- Real-time messaging using WebSocket
-- Message persistence with Redis
-- Support for multiple chat rooms
-- Typing indicators
-- Message history with pagination
-- User presence tracking
-- System messages for events
-- Beautiful API documentation
+- Real-time messaging using WebSockets
+- Chat rooms with multiple users
+- Message history
+- User management
+- Rate limiting
+- Asynchronous operations
+- Redis for data persistence
+- Comprehensive test suite
 
-## Tech Stack
+## Project Structure
 
-- **FastAPI**: Modern, fast web framework for building APIs
-- **WebSocket**: Real-time bidirectional communication
-- **Redis**: In-memory data store for message persistence
-- **Pydantic**: Data validation using Python type annotations
-- **Python 3.8+**: Modern Python features and type hints
+```
+chat-api/
+├── src/                    # Source code
+│   ├── api/               # API endpoints
+│   │   └── v1/           # API v1 routes
+│   ├── config/           # Configuration settings
+│   ├── core/             # Core business logic
+│   ├── examples/         # Example usage
+│   ├── middleware/       # Middleware components
+│   ├── models/          # Data models
+│   └── services/        # Services (Database, WebSocket)
+├── tests/               # Test suite
+├── static/             # Static files
+├── .env               # Environment variables
+├── example.env        # Example environment variables
+├── requirements.txt   # Python dependencies
+├── setup.py          # Package setup
+├── pytest.ini        # Pytest configuration
+└── README.md         # Project documentation
+```
 
 ## Prerequisites
 
-- Python 3.8 or higher
+- Python 3.8+
 - Redis server
-- pip (Python package manager)
+- Virtual environment (recommended)
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/nuu-maan/chat-api.git
+git clone https://github.com/yourusername/chat-api.git
 cd chat-api
 ```
 
@@ -46,154 +61,84 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Create a `.env` file in the root directory:
-```env
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_DB=0
-REDIS_PASSWORD=your_password
-MAX_MESSAGES_PER_ROOM=1000
-```
-
-## Running the Application
-
-1. Start Redis server:
+4. Copy example.env to .env and configure your settings:
 ```bash
-redis-server
+cp example.env .env
 ```
 
-2. Start the FastAPI server:
+## Configuration
+
+Edit `.env` file to configure:
+
+- Redis connection settings
+- API settings
+- Rate limiting parameters
+- Logging configuration
+
+## Running the API
+
+1. Start the Redis server
+
+2. Run the FastAPI server:
 ```bash
-uvicorn main:app --reload
+uvicorn src.main:app --reload
 ```
 
-The API will be available at:
-- API: http://localhost:8000
-- Documentation: http://localhost:8000/docs
-- Alternative Documentation: http://localhost:8000/redoc
+The API will be available at `http://localhost:8000`
 
 ## API Documentation
 
-### WebSocket Endpoints
+Once the server is running, visit:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
-#### Connect to Chat
-```websocket
-ws://localhost:8000/ws/{user_id}
+## WebSocket Endpoints
+
+### Connect to Chat Room
+```
+ws://localhost:8000/api/v1/ws/{room_id}/{user_id}
 ```
 
-### HTTP Endpoints
-
-#### Get Chat History
-```http
-GET /chat/{chat_id}/history
+### Message Format
+```json
+{
+    "type": "text",
+    "content": "Hello, World!",
+    "user_id": "user123"
+}
 ```
 
-#### Get Chat Room Details
-```http
-GET /chat/{chat_id}
-```
+## REST Endpoints
 
-#### Get User Details
-```http
-GET /user/{user_id}
-```
+### Rooms
+- `POST /api/v1/rooms` - Create room
+- `GET /api/v1/rooms` - List rooms
+- `GET /api/v1/rooms/{room_id}` - Get room
+- `GET /api/v1/rooms/{room_id}/messages` - Get room messages
 
-For detailed API documentation, visit:
-- Interactive API docs: http://localhost:8000/docs
-- Alternative API docs: http://localhost:8000/redoc
+### Users
+- `POST /api/v1/users` - Create user
+- `GET /api/v1/users` - List users
+- `GET /api/v1/users/{user_id}` - Get user
 
-## Example Usage
+### Messages
+- `POST /api/v1/rooms/{room_id}/messages` - Send message
 
-### Python Client
-```python
-import asyncio
-import websockets
-import json
+## Testing
 
-async def chat_client():
-    uri = "ws://localhost:8000/ws/user1"
-    async with websockets.connect(uri) as websocket:
-        # Join a chat room
-        await websocket.send(json.dumps({
-            "type": "join",
-            "chat_id": "chat1"
-        }))
-        
-        # Send a message
-        await websocket.send(json.dumps({
-            "type": "text",
-            "content": "Hello, world!",
-            "chat_id": "chat1"
-        }))
-        
-        # Receive messages
-        while True:
-            response = await websocket.recv()
-            print(f"Received: {response}")
-
-asyncio.get_event_loop().run_until_complete(chat_client())
-```
-
-### JavaScript Client
-```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/user1');
-
-ws.onmessage = (event) => {
-    const message = JSON.parse(event.data);
-    console.log('Received:', message);
-};
-
-ws.onopen = () => {
-    // Join a chat room
-    ws.send(JSON.stringify({
-        type: 'join',
-        chat_id: 'chat1'
-    }));
-    
-    // Send a message
-    ws.send(JSON.stringify({
-        type: 'text',
-        content: 'Hello, world!',
-        chat_id: 'chat1'
-    }));
-};
-```
-
-## Project Structure
-
-```
-chat-api/
-├── config/
-│   ├── __init__.py
-│   └── settings.py
-├── models/
-│   ├── __init__.py
-│   └── models.py
-├── services/
-│   ├── __init__.py
-│   ├── database.py
-│   └── websocket.py
-├── static/
-│   └── docs.html
-├── main.py
-├── requirements.txt
-└── README.md
+Run the test suite:
+```bash
+pytest tests/ -v
 ```
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- FastAPI team for the amazing framework
-- Redis team for the powerful in-memory database
-- All contributors who help improve this project 
+This project is licensed under the MIT License - see the LICENSE file for details. 
