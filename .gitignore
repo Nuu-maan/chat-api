@@ -25,13 +25,15 @@ venv/
 env/
 ENV/
 .env
+.venv
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-.DS_Store
+*.sublime-workspace
+*.sublime-project
 
 # Logs
 *.log
@@ -47,6 +49,7 @@ log/
 # Redis
 *.rdb
 *.aof
+redis-data/
 
 # Coverage reports
 htmlcov/
@@ -62,126 +65,41 @@ coverage.xml
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# mypy
+# Type checking
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
-# pytest
-.pytest_cache/
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
 .pyre/
-
-# pytype static type analyzer
 .pytype/
 
-# Cython debug symbols
-cython_debug/
+# Testing
+.pytest_cache/
+.pytest_cache/
+test-results/
 
-# PyCharm
-.idea/
+# Documentation
+docs/_build/
+/site
 
-# VS Code
-.vscode/
-
-# Sublime Text
-*.sublime-workspace
-*.sublime-project
-
-# macOS
+# OS specific
 .DS_Store
 .AppleDouble
 .LSOverride
-
-# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-
-# Linux
 *~
-.directory 
+.directory
+
+# Project specific
+static/uploads/
+static/temp/
+src/examples/__pycache__/
+tests/__pycache__/
+src/api/__pycache__/
+src/config/__pycache__/
+src/core/__pycache__/
+src/middleware/__pycache__/
+src/models/__pycache__/
+src/services/__pycache__/
+src/utils/__pycache__/ 
