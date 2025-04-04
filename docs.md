@@ -2,70 +2,29 @@
 
 ## Overview
 
-The Chat API provides real-time messaging capabilities using WebSockets and REST endpoints. It supports multiple chat rooms, user management, and message persistence using Redis.
+The Chat API provides real-time messaging capabilities using WebSocket connections and Redis for data persistence. This document outlines the available endpoints and their usage.
+
+## Base URL
+
+```
+http://localhost:8000/api/v1
+```
 
 ## Authentication
 
-Currently, the API uses simple user IDs for authentication. In a production environment, you should implement proper authentication using JWT or similar.
+Currently, the API uses simple user IDs for authentication. Future versions will implement proper authentication mechanisms.
 
-## WebSocket API
+## Endpoints
 
-### Connect to Chat Room
-
-```
-ws://localhost:8000/api/v1/ws/{room_id}/{user_id}
-```
-
-#### Parameters
-- `room_id`: The ID of the chat room to connect to
-- `user_id`: The ID of the user connecting
-
-#### Message Types
-
-1. Text Message
-```json
-{
-    "type": "text",
-    "content": "Hello, World!",
-    "user_id": "user123"
-}
-```
-
-2. History Message (Server -> Client)
-```json
-{
-    "type": "history",
-    "messages": [
-        {
-            "id": "message123",
-            "room_id": "room123",
-            "user_id": "user123",
-            "content": "Hello!",
-            "type": "text",
-            "created_at": "2024-04-01T12:00:00Z"
-        }
-    ]
-}
-```
-
-3. System Message (Server -> Client)
-```json
-{
-    "type": "system",
-    "content": "User user123 left the chat",
-    "timestamp": "2024-04-01T12:00:00Z"
-}
-```
-
-## REST API
-
-### Rooms
+### Chat Rooms
 
 #### Create Room
 ```http
-POST /api/v1/rooms
-Content-Type: application/json
+POST /rooms
+```
 
+Request body:
+```json
 {
     "name": "General Chat"
 }
@@ -74,49 +33,37 @@ Content-Type: application/json
 Response:
 ```json
 {
-    "id": "room123",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
     "name": "General Chat",
-    "created_at": "2024-04-01T12:00:00Z"
+    "created_at": "2024-01-01T12:00:00"
 }
 ```
 
-#### List Rooms
+#### Get Rooms
 ```http
-GET /api/v1/rooms
+GET /rooms
 ```
 
 Response:
 ```json
 [
     {
-        "id": "room123",
+        "id": "550e8400-e29b-41d4-a716-446655440000",
         "name": "General Chat",
-        "created_at": "2024-04-01T12:00:00Z"
+        "created_at": "2024-01-01T12:00:00"
     }
 ]
-```
-
-#### Get Room
-```http
-GET /api/v1/rooms/{room_id}
-```
-
-Response:
-```json
-{
-    "id": "room123",
-    "name": "General Chat",
-    "created_at": "2024-04-01T12:00:00Z"
-}
 ```
 
 ### Users
 
 #### Create User
 ```http
-POST /api/v1/users
-Content-Type: application/json
+POST /users
+```
 
+Request body:
+```json
 {
     "username": "john_doe"
 }
@@ -125,52 +72,40 @@ Content-Type: application/json
 Response:
 ```json
 {
-    "id": "user123",
+    "id": "550e8400-e29b-41d4-a716-446655440001",
     "username": "john_doe",
-    "created_at": "2024-04-01T12:00:00Z"
+    "created_at": "2024-01-01T12:00:00"
 }
 ```
 
-#### List Users
+#### Get Users
 ```http
-GET /api/v1/users
+GET /users
 ```
 
 Response:
 ```json
 [
     {
-        "id": "user123",
+        "id": "550e8400-e29b-41d4-a716-446655440001",
         "username": "john_doe",
-        "created_at": "2024-04-01T12:00:00Z"
+        "created_at": "2024-01-01T12:00:00"
     }
 ]
-```
-
-#### Get User
-```http
-GET /api/v1/users/{user_id}
-```
-
-Response:
-```json
-{
-    "id": "user123",
-    "username": "john_doe",
-    "created_at": "2024-04-01T12:00:00Z"
-}
 ```
 
 ### Messages
 
 #### Send Message
 ```http
-POST /api/v1/rooms/{room_id}/messages
-Content-Type: application/json
+POST /rooms/{room_id}/messages
+```
 
+Request body:
+```json
 {
-    "content": "Hello, World!",
-    "user_id": "user123",
+    "content": "Hello, world!",
+    "user_id": "550e8400-e29b-41d4-a716-446655440001",
     "type": "text"
 }
 ```
@@ -178,118 +113,104 @@ Content-Type: application/json
 Response:
 ```json
 {
-    "id": "message123",
-    "room_id": "room123",
-    "user_id": "user123",
-    "content": "Hello, World!",
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "room_id": "550e8400-e29b-41d4-a716-446655440000",
+    "user_id": "550e8400-e29b-41d4-a716-446655440001",
+    "content": "Hello, world!",
     "type": "text",
-    "created_at": "2024-04-01T12:00:00Z"
+    "created_at": "2024-01-01T12:00:00"
 }
 ```
 
 #### Get Room Messages
 ```http
-GET /api/v1/rooms/{room_id}/messages?limit=50
+GET /rooms/{room_id}/messages
 ```
+
+Query parameters:
+- `limit` (optional): Maximum number of messages to return (default: 50)
 
 Response:
 ```json
 [
     {
-        "id": "message123",
-        "room_id": "room123",
-        "user_id": "user123",
-        "content": "Hello, World!",
+        "id": "550e8400-e29b-41d4-a716-446655440002",
+        "room_id": "550e8400-e29b-41d4-a716-446655440000",
+        "user_id": "550e8400-e29b-41d4-a716-446655440001",
+        "content": "Hello, world!",
         "type": "text",
-        "created_at": "2024-04-01T12:00:00Z"
+        "created_at": "2024-01-01T12:00:00"
     }
 ]
 ```
 
-## Error Handling
+### WebSocket
 
-The API uses standard HTTP status codes:
+#### Connect to Room
+```
+ws://localhost:8000/api/v1/ws/{room_id}/{user_id}
+```
 
-- 200: Success
-- 400: Bad Request
-- 401: Unauthorized
-- 404: Not Found
-- 429: Too Many Requests
-- 500: Internal Server Error
-
-Error Response Format:
+Upon connection, the server sends a history message with recent chat messages:
 ```json
 {
-    "detail": "Error message here"
+    "type": "history",
+    "messages": [
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440002",
+            "room_id": "550e8400-e29b-41d4-a716-446655440000",
+            "user_id": "550e8400-e29b-41d4-a716-446655440001",
+            "content": "Hello, world!",
+            "type": "text",
+            "created_at": "2024-01-01T12:00:00"
+        }
+    ]
+}
+```
+
+#### Send WebSocket Message
+```json
+{
+    "type": "text",
+    "content": "Hello, everyone!"
+}
+```
+
+#### Receive WebSocket Message
+```json
+{
+    "id": "550e8400-e29b-41d4-a716-446655440003",
+    "room_id": "550e8400-e29b-41d4-a716-446655440000",
+    "user_id": "550e8400-e29b-41d4-a716-446655440001",
+    "content": "Hello, everyone!",
+    "type": "text",
+    "created_at": "2024-01-01T12:00:00"
 }
 ```
 
 ## Rate Limiting
 
-The API implements rate limiting per client IP address. The default limit is configurable in the `.env` file.
+The API implements rate limiting to prevent abuse:
+- HTTP endpoints: 60 requests per minute per IP
+- WebSocket connections: 1 connection per user per room
 
-## WebSocket Events
+## Data Storage
 
-1. Connection
-   - Client connects to WebSocket
-   - Server sends chat history
-   - Server notifies other users of new connection
+Messages are stored in Redis with the following characteristics:
+- Messages expire after 7 days (configurable)
+- Each room has a maximum of 100 messages (configurable)
+- Room and user data are stored as Redis hashes
+- Messages are stored as Redis lists with automatic trimming
 
-2. Message
-   - Client sends message
-   - Server broadcasts message to all users in room
-   - Server persists message in Redis
+## Error Handling
 
-3. Disconnection
-   - Client disconnects
-   - Server notifies other users
-   - Server cleans up connection
+The API uses standard HTTP status codes:
+- 200: Success
+- 400: Bad Request
+- 404: Not Found
+- 429: Too Many Requests
+- 500: Internal Server Error
 
-## Examples
-
-### Python Client Example
-```python
-import asyncio
-import websockets
-import json
-
-async def chat_client():
-    uri = "ws://localhost:8000/api/v1/ws/room123/user123"
-    async with websockets.connect(uri) as websocket:
-        # Receive history
-        history = await websocket.recv()
-        print(f"History: {history}")
-        
-        # Send message
-        message = {
-            "type": "text",
-            "content": "Hello!",
-            "user_id": "user123"
-        }
-        await websocket.send(json.dumps(message))
-        
-        # Receive messages
-        while True:
-            response = await websocket.recv()
-            print(f"Received: {response}")
-
-asyncio.run(chat_client())
-```
-
-### JavaScript Client Example
-```javascript
-const ws = new WebSocket('ws://localhost:8000/api/v1/ws/room123/user123');
-
-ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log('Received:', data);
-};
-
-ws.onopen = () => {
-    ws.send(JSON.stringify({
-        type: 'text',
-        content: 'Hello!',
-        user_id: 'user123'
-    }));
-};
-``` 
+WebSocket errors are handled with close codes:
+- 4004: Room or User Not Found
+- 1011: Internal Server Error 

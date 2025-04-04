@@ -1,6 +1,6 @@
 # Chat API
 
-A real-time chat API built with FastAPI, WebSockets, and Redis.
+A real-time chat API built with FastAPI, Redis, and WebSocket support.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Nuu-maan/chat-api/blob/main/LICENSE)
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
@@ -9,14 +9,21 @@ A real-time chat API built with FastAPI, WebSockets, and Redis.
 
 ## Features
 
-- Real-time messaging using WebSockets
-- Chat rooms with multiple users
-- Message history and persistence
-- User management and authentication
-- Rate limiting and security features
-- Asynchronous operations
-- Redis for data storage
-- Comprehensive test suite
+- Real-time chat using WebSocket connections
+- Redis-based message storage with automatic expiry
+- Room-based chat system
+- User management
+- Message history support
+- Rate limiting
+- CORS support
+- OpenAPI documentation
+
+## Recent Updates
+
+- Fixed Redis implementation to use modern `hset` commands
+- Updated Pydantic model serialization to use `model_dump()`
+- Improved WebSocket connection handling
+- Enhanced test coverage for database operations
 
 ## Project Structure
 
@@ -78,6 +85,13 @@ Edit `.env` file to configure:
 - API settings
 - Rate limiting parameters
 - Logging configuration
+
+The following environment variables are required:
+
+- `REDIS_URL`: Redis connection URL (default: `redis://localhost:6379`)
+- `MESSAGE_EXPIRY_DAYS`: Number of days to keep messages (default: 7)
+- `MAX_MESSAGES_PER_ROOM`: Maximum messages per room (default: 100)
+- `RATE_LIMIT_REQUESTS`: Maximum requests per minute (default: 60)
 
 ## Running the API
 
