@@ -4,7 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from contextlib import asynccontextmanager
 from src.config.settings import get_settings
-from src.api.v1.router import api_router, db
+from src.api.v1.router import api_router
+from src.dependencies import get_database
 import logging
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
@@ -20,11 +21,11 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     """Lifespan events for the application."""
     try:
-        await db.connect()
+        await get_database().connect()
         logger.info("Connected to Redis")
         yield
     finally:
-        await db.disconnect()
+        await get_database().disconnect()
         logger.info("Disconnected from Redis")
 
 app = FastAPI(

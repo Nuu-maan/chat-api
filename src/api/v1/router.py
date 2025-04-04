@@ -1,21 +1,20 @@
 from fastapi import APIRouter, WebSocket, HTTPException, Depends, Path
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel
 from src.models.chat_room import ChatRoom
 from src.models.user import User
 from src.models.message import Message, MessageType
-from src.services.database import RedisDatabase
+from src.services.database import DatabaseInterface
 from src.services.websocket import manager
 from src.middleware.rate_limiter import check_rate_limit
+from src.dependencies import get_database
 import logging
 import uuid
 from datetime import datetime
 from fastapi import WebSocketDisconnect
 
 logger = logging.getLogger(__name__)
-
 api_router = APIRouter()
-db = RedisDatabase()
 
 class RoomCreate(BaseModel):
     name: str
@@ -29,7 +28,11 @@ class MessageCreate(BaseModel):
     type: MessageType = MessageType.TEXT
 
 @api_router.post("/rooms", response_model=ChatRoom)
-async def create_room(room: RoomCreate, _: None = Depends(check_rate_limit)):
+async def create_room(
+    room: RoomCreate,
+    db: DatabaseInterface = Depends(get_database),
+    _: None = Depends(check_rate_limit)
+):
     """Create a new chat room."""
     try:
         return await db.create_room(room.name)
@@ -38,7 +41,10 @@ async def create_room(room: RoomCreate, _: None = Depends(check_rate_limit)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/rooms", response_model=List[ChatRoom])
-async def get_rooms(_: None = Depends(check_rate_limit)):
+async def get_rooms(
+    db: DatabaseInterface = Depends(get_database),
+    _: None = Depends(check_rate_limit)
+):
     """Get all chat rooms."""
     try:
         return await db.get_rooms()
@@ -49,6 +55,7 @@ async def get_rooms(_: None = Depends(check_rate_limit)):
 @api_router.get("/rooms/{room_id}", response_model=ChatRoom)
 async def get_room(
     room_id: str = Path(..., description="The ID of the room to retrieve"),
+    db: DatabaseInterface = Depends(get_database),
     _: None = Depends(check_rate_limit)
 ):
     """Get a chat room by ID."""
@@ -64,7 +71,11 @@ async def get_room(
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/users", response_model=User)
-async def create_user(user: UserCreate, _: None = Depends(check_rate_limit)):
+async def create_user(
+    user: UserCreate,
+    db: DatabaseInterface = Depends(get_database),
+    _: None = Depends(check_rate_limit)
+):
     """Create a new user."""
     try:
         return await db.create_user(user.username)
@@ -73,7 +84,10 @@ async def create_user(user: UserCreate, _: None = Depends(check_rate_limit)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/users", response_model=List[User])
-async def get_users(_: None = Depends(check_rate_limit)):
+async def get_users(
+    db: DatabaseInterface = Depends(get_database),
+    _: None = Depends(check_rate_limit)
+):
     """Get all users."""
     try:
         return await db.get_users()
@@ -84,6 +98,7 @@ async def get_users(_: None = Depends(check_rate_limit)):
 @api_router.get("/users/{user_id}", response_model=User)
 async def get_user(
     user_id: str = Path(..., description="The ID of the user to retrieve"),
+    db: DatabaseInterface = Depends(get_database),
     _: None = Depends(check_rate_limit)
 ):
     """Get a user by ID."""
@@ -102,6 +117,7 @@ async def get_user(
 async def create_message(
     room_id: str,
     message: MessageCreate,
+    db: DatabaseInterface = Depends(get_database),
     _: None = Depends(check_rate_limit)
 ):
     """Create a new message in a room."""
@@ -137,6 +153,7 @@ async def create_message(
 async def get_messages(
     room_id: str,
     limit: int = 50,
+    db: DatabaseInterface = Depends(get_database),
     _: None = Depends(check_rate_limit)
 ):
     """Get messages from a room."""
@@ -157,7 +174,8 @@ async def get_messages(
 async def websocket_endpoint(
     websocket: WebSocket,
     room_id: str = Path(..., description="The ID of the room to connect to"),
-    user_id: str = Path(..., description="The ID of the user connecting")
+    user_id: str = Path(..., description="The ID of the user connecting"),
+    db: DatabaseInterface = Depends(get_database)
 ):
     """WebSocket endpoint for chat."""
     try:
@@ -198,24 +216,18 @@ async def websocket_endpoint(
                     created_at=datetime.utcnow()
                 )
 
+                # Save message and broadcast to room
                 await db.save_message(message)
-                await manager.broadcast_to_room(room_id, {
-                    "type": data["type"],
-                    "content": message.content,
-                    "user_id": message.user_id,
-                    "room_id": message.room_id,
-                    "created_at": message.created_at
-                })
+                await manager.broadcast_to_room(room_id, message.dict())
 
         except WebSocketDisconnect:
-            await manager.disconnect(room_id, user_id)
+            await manager.disconnect(websocket, room_id, user_id)
         except Exception as e:
-            logging.error(f"Error in WebSocket connection: {e}")
-            await manager.disconnect(room_id, user_id)
-            raise
-
+            logger.error(f"WebSocket error: {e}")
+            await manager.disconnect(websocket, room_id, user_id)
+            await websocket.close(code=1011, reason="Internal server error")
     except Exception as e:
-        logging.error(f"Error in WebSocket endpoint: {e}")
-        await websocket.close(code=1011, reason=str(e))
+        logger.error(f"WebSocket setup error: {e}")
+        await websocket.close(code=1011, reason="Internal server error")
 
 __all__ = ['api_router'] 
