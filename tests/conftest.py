@@ -1,42 +1,40 @@
 import pytest
 import asyncio
-from typing import Generator
-from src.services.database import RedisDatabase
+from typing import AsyncGenerator, Generator
+from src.services.database.redis import RedisDatabase
+from src.config.settings import get_settings
 from fastapi.testclient import TestClient
-from src.main import app
 from httpx import AsyncClient
+from src.main import app
+
+settings = get_settings()
 
 @pytest.fixture(scope="session")
-def event_loop_policy():
-    """Create a new event loop policy for the test session."""
-    policy = asyncio.WindowsSelectorEventLoopPolicy()
-    asyncio.set_event_loop_policy(policy)
-    return policy
-
-@pytest.fixture(scope="session")
-def event_loop(event_loop_policy):
+def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     """Create an instance of the default event loop for each test case."""
-    loop = event_loop_policy.new_event_loop()
+    loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
 @pytest.fixture
-async def db():
-    """Create a RedisDatabase instance for testing."""
-    database = RedisDatabase()
-    await database.connect()
-    yield database
-    await database.disconnect()
+async def db() -> AsyncGenerator[RedisDatabase, None]:
+    """Create a Redis database instance for testing."""
+    db = RedisDatabase()
+    await db.connect()
+    yield db
+    await db.disconnect()
 
 @pytest.fixture(autouse=True)
 async def setup_database(db: RedisDatabase):
     """Clear the database before and after each test."""
-    await db.redis_client.flushdb()
+    if db.redis_client:
+        await db.redis_client.flushdb()
     yield
-    await db.redis_client.flushdb()
+    if db.redis_client:
+        await db.redis_client.flushdb()
 
 @pytest.fixture
-async def async_client():
+async def async_client() -> AsyncGenerator[AsyncClient, None]:
     """Create an AsyncClient instance for testing."""
     async with AsyncClient(app=app, base_url="http://test") as client:
-        yield client 
+        yield client
